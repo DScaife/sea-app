@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_login import LoginManager
+from werkzeug.security import generate_password_hash
 
 # Create a global SQLAlchemy instance (do not bind it to an app yet)
 db = SQLAlchemy()
@@ -40,5 +41,15 @@ def create_app():
     # Create the database tables if they don't exist already
     with app.app_context():
         db.create_all()
+        # Seed a default admin account if one doesn't exist
+        if not User.query.filter_by(username='admin1234').first():
+            admin_user = User(
+                username='admin1234',
+                email='admin@example.com',
+                password=generate_password_hash('1234', method='pbkdf2:sha256'),
+                role='admin'
+            )
+            db.session.add(admin_user)
+            db.session.commit()
 
     return app

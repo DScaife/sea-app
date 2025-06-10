@@ -7,7 +7,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
-    # Optionally, you can have a role field (e.g., 'admin' or 'user')
     role = db.Column(db.String(20), nullable=False, default='user')
 
     def __repr__(self):

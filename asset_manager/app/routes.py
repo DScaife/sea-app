@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from . import db
 from .models import Asset
 from datetime import datetime
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 
@@ -24,8 +24,13 @@ def new_asset():
         name = request.form.get('name')
         category = request.form.get('category')
         purchase_date = request.form.get('purchase_date')  # Expecting 'YYYY-MM-DD'
-        status = request.form.get('status')
-
+        
+        # Only let admins set the status manually.
+        if current_user.role == 'admin':
+            status = request.form.get('status', 'Active')
+        else:
+            status = 'Pending Approval'
+        
         try:
             purchase_date_obj = datetime.strptime(purchase_date, '%Y-%m-%d')
         except ValueError:
@@ -74,3 +79,40 @@ def delete_asset(id):
     db.session.commit()
     flash('Asset deleted successfully!', 'danger')
     return redirect(url_for('main.asset_list'))
+
+@main.route('/assets/pending')
+@login_required
+def pending_assets():
+    # Check role: Only admin users should view pending assets.
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.asset_list'))
+    
+    assets = Asset.query.filter_by(status='Pending Approval').all()
+    return render_template('pending_assets.html', assets=assets)
+
+@main.route('/asset/approve/<int:id>', methods=['POST'])
+@login_required
+def approve_asset(id):
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.asset_list'))
+    
+    asset = Asset.query.get_or_404(id)
+    asset.status = 'Active'
+    db.session.commit()
+    flash('Asset approved!', 'success')
+    return redirect(url_for('main.pending_assets'))
+
+@main.route('/asset/reject/<int:id>', methods=['POST'])
+@login_required
+def reject_asset(id):
+    if current_user.role != 'admin':
+        flash('Access denied.', 'danger')
+        return redirect(url_for('main.asset_list'))
+    
+    asset = Asset.query.get_or_404(id)
+    asset.status = 'Rejected'
+    db.session.commit()
+    flash('Asset rejected!', 'warning')
+    return redirect(url_for('main.pending_assets'))
