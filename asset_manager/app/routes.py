@@ -2,28 +2,30 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from . import db
 from .models import Asset
 from datetime import datetime
+from flask_login import login_required
 
-# Create a blueprint for your main routes
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def home():
-    return render_template('home.html')
+    # Force authentication by redirecting to login if not logged in.
+    return redirect(url_for('auth.login'))
 
 @main.route('/assets')
+@login_required
 def asset_list():
     assets = Asset.query.all()
     return render_template('assets.html', assets=assets)
 
 @main.route('/asset/new', methods=['GET', 'POST'])
+@login_required
 def new_asset():
     if request.method == 'POST':
         name = request.form.get('name')
         category = request.form.get('category')
-        purchase_date = request.form.get('purchase_date')  # Entered as 'YYYY-MM-DD'
+        purchase_date = request.form.get('purchase_date')  # Expecting 'YYYY-MM-DD'
         status = request.form.get('status')
 
-        # Validate and convert the purchase date from string to a date object
         try:
             purchase_date_obj = datetime.strptime(purchase_date, '%Y-%m-%d')
         except ValueError:
@@ -44,6 +46,7 @@ def new_asset():
     return render_template('new_asset.html')
 
 @main.route('/asset/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_asset(id):
     asset = Asset.query.get_or_404(id)
     if request.method == 'POST':
@@ -64,6 +67,7 @@ def edit_asset(id):
     return render_template('edit_asset.html', asset=asset)
 
 @main.route('/asset/delete/<int:id>', methods=['POST'])
+@login_required
 def delete_asset(id):
     asset = Asset.query.get_or_404(id)
     db.session.delete(asset)

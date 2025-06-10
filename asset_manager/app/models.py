@@ -1,5 +1,17 @@
 from . import db
+from flask_login import UserMixin
 from datetime import datetime
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+    # Optionally, you can have a role field (e.g., 'admin' or 'user')
+    role = db.Column(db.String(20), nullable=False, default='user')
+
+    def __repr__(self):
+        return f"<User {self.username}>"
 
 class Asset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
