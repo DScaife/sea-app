@@ -1,0 +1,35 @@
+<!-- templates/assets.html -->
+{% extends "base.html" %}
+{% block content %}
+  <h2>Assets List</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Purchase Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for asset in assets %}
+      <tr>
+        <td>{{ asset.id }}</td>
+        <td>{{ asset.name }}</td>
+        <td>{{ asset.category }}</td>
+        <td>{{ asset.purchase_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ asset.status }}</td>
+        <td>
+          <a href="{{ url_for('main.edit_asset', id=asset.id) }}" class="btn btn-sm btn-warning">Edit</a>
+          <form action="{{ url_for('main.delete_asset', id=asset.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Sure to delete?');">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{{ url_for('main.new_asset') }}" class="btn btn-primary">Add New Asset</a>
+{% endblock %}
