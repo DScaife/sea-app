@@ -132,7 +132,7 @@ def approve_asset(id):
     asset.status = "Active"
     db.session.commit()
     flash("Asset approved!", "success")
-    return redirect(url_for("main.asset_list", status="Pending Approval"))
+    return redirect(url_for("main.asset_list"))
 
 
 @main.route("/asset/reject/<int:id>", methods=["POST"])
@@ -146,4 +146,4 @@ def reject_asset(id):
     asset.status = "Rejected"
     db.session.commit()
     flash("Asset rejected!", "warning")
-    return redirect(url_for("main.asset_list", status="Pending Approval"))
+    return redirect(url_for("main.asset_list"))
