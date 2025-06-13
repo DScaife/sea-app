@@ -20,11 +20,10 @@ def create_app():
     
     # Set up Flask-Login
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'  # Where unauthorized users are redirected
+    login_manager.login_view = 'auth.login'  # Redirect for unauthorized users
     login_manager.init_app(app)
     
-    # (We'll define a user loader in a moment; see the User model below)
-    from .models import User  # Ensure the User model is imported so that the loader finds it
+    from .models import User  # Make sure User is imported
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -34,7 +33,6 @@ def create_app():
     from .routes import main
     app.register_blueprint(main)
     
-    # Register the authentication blueprint (we'll create auth.py next)
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
     
@@ -45,7 +43,6 @@ def create_app():
         if not User.query.filter_by(username='admin1234').first():
             admin_user = User(
                 username='admin1234',
-                email='admin@example.com',
                 password=generate_password_hash('1234', method='pbkdf2:sha256'),
                 role='admin'
             )

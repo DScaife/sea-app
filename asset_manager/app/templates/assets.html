@@ -1,6 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
   <h2>Assets List</h2>
+  
+  <!-- Filter form; only display "Submitted By" filter for admin users -->
+  <form method="GET" action="{{ url_for('main.asset_list') }}" class="mb-3">
+    <div class="row">
+      <!-- Filter by Status -->
+      <div class="col-md-3">
+        <label for="status" class="form-label">Status</label>
+        <select name="status" id="status" class="form-select">
+          <option value="">All</option>
+          <option value="Pending Approval">Pending Approval</option>
+          <option value="Active">Approved</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      
+      <!-- Conditionally display Submitted By filter only for admins -->
+      {% if current_user.role == 'admin' %}
+      <div class="col-md-3">
+        <label for="user" class="form-label">Submitted By</label>
+        <input type="text" name="user" id="user" class="form-control" placeholder="Enter username">
+      </div>
+      {% endif %}
+      
+      <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+        <a href="{{ url_for('main.asset_list') }}" class="btn btn-secondary">Clear Filters</a>
+      </div>
+    </div>
+  </form>
+  
+  <!-- Assets table -->
   <table class="table table-striped">
     <thead>
       <tr>
@@ -8,6 +39,9 @@
         <th>Name</th>
         <th>Category</th>
         <th>Purchase Date</th>
+        {% if current_user.role == 'admin' %}
+          <th>Submitted By</th>
+        {% endif %}
         <th>Status</th>
         <th>Actions</th>
       </tr>
@@ -19,16 +53,30 @@
         <td>{{ asset.name }}</td>
         <td>{{ asset.category }}</td>
         <td>{{ asset.purchase_date.strftime('%Y-%m-%d') }}</td>
+        {% if current_user.role == 'admin' %}
+          <td>{{ asset.submitter.username }}</td>
+        {% endif %}
         <td>{{ asset.status }}</td>
         <td>
           <a href="{{ url_for('main.edit_asset', id=asset.id) }}" class="btn btn-sm btn-warning">Edit</a>
           <form action="{{ url_for('main.delete_asset', id=asset.id) }}" method="post" style="display:inline;">
             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Sure to delete?');">Delete</button>
           </form>
+          
+          <!-- Optionally display Approve/Reject buttons for assets that are pending -->
+          {% if current_user.role == 'admin' and asset.status == 'Pending Approval' %}
+            <form action="{{ url_for('main.approve_asset', id=asset.id) }}" method="post" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-success">Approve</button>
+            </form>
+            <form action="{{ url_for('main.reject_asset', id=asset.id) }}" method="post" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+            </form>
+          {% endif %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  
   <a href="{{ url_for('main.new_asset') }}" class="btn btn-primary">Add New Asset</a>
 {% endblock %}

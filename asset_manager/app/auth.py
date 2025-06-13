@@ -18,7 +18,7 @@ def login():
         if user and check_password_hash(user.password, password):
             login_user(user)
             flash('Logged in successfully!', 'success')
-            return redirect(url_for('main.asset_list'))  # Redirect to a protected asset page
+            return redirect(url_for('main.asset_list'))
         else:
             flash('Invalid credentials. Please try again.', 'danger')
     return render_template('login.html')
@@ -30,7 +30,8 @@ def register():
     
     if request.method == 'POST':
         username = request.form.get('username')
-        email = request.form.get('email')
+        # Remove email extraction as it's no longer needed:
+        # email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
@@ -44,7 +45,6 @@ def register():
         
         new_user = User(
             username=username, 
-            email=email, 
             password=generate_password_hash(password, method='pbkdf2:sha256')
         )
         db.session.add(new_user)
