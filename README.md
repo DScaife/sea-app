@@ -79,7 +79,7 @@ Asset Manager is a simple web-based asset management system built with Flask.
 ## Additional Information
 
 - Source Code:
-  The complete source code is available on GitHub at: <YOUR_GITHUB_REPO_URL>
+  The complete source code is available on GitHub at: (REPO LINK)
 
 - Deployment:
   This app can be deployed on free public cloud platforms (e.g., Heroku, AWS, or Azure).
