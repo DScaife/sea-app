@@ -2,10 +2,8 @@
 {% block content %}
   <h2>Assets List</h2>
   
-  <!-- Filter form; only display "Submitted By" filter for admin users -->
   <form method="GET" action="{{ url_for('main.asset_list') }}" class="mb-3">
     <div class="row">
-      <!-- Filter by Status -->
       <div class="col-md-3">
         <label for="status" class="form-label">Status</label>
         <select name="status" id="status" class="form-select">
@@ -16,7 +14,6 @@
         </select>
       </div>
       
-      <!-- Conditionally display Submitted By filter only for admins -->
       {% if current_user.role == 'admin' %}
       <div class="col-md-3">
         <label for="user" class="form-label">Submitted By</label>
@@ -31,7 +28,6 @@
     </div>
   </form>
   
-  <!-- Assets table -->
   <table class="table table-striped">
     <thead>
       <tr>
@@ -63,7 +59,6 @@
             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Sure to delete?');">Delete</button>
           </form>
           
-          <!-- Optionally display Approve/Reject buttons for assets that are pending -->
           {% if current_user.role == 'admin' and asset.status == 'Pending Approval' %}
             <form action="{{ url_for('main.approve_asset', id=asset.id) }}" method="post" style="display:inline;">
               <button type="submit" class="btn btn-sm btn-success">Approve</button>

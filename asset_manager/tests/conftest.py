@@ -11,7 +11,6 @@ from werkzeug.security import generate_password_hash
 
 @pytest.fixture
 def app():
-    # Create a temporary file to act as the test database.
     db_fd, db_path = tempfile.mkstemp()
     test_config = {
         "TESTING": True,
@@ -20,10 +19,9 @@ def app():
     }
     app = create_app(test_config)
     yield app
-    # Teardown cleanup: remove sessions and dispose of the engine.
     with app.app_context():
-        db.session.remove()  # Remove any active sessions
-        db.engine.dispose()  # Dispose of the engine (closes connections)
+        db.session.remove()
+        db.engine.dispose()
     os.close(db_fd)
     os.unlink(db_path)
 

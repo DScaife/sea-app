@@ -9,29 +9,23 @@ main = Blueprint("main", __name__)
 
 @main.route("/")
 def home():
-    # Force authentication by redirecting to login if not logged in.
     return redirect(url_for("auth.login"))
 
 
 @main.route("/assets")
 @login_required
 def asset_list():
-    # Get filter parameters from the URL.
     status_filter = request.args.get("status")
-    user_filter = request.args.get("user")  # Expected to be a username for admins
+    user_filter = request.args.get("user")
 
     query = Asset.query
 
-    # For regular users, automatically filter by their own assets.
     if current_user.role != "admin":
         query = query.filter_by(user_id=current_user.id)
     else:
-        # If there is a user_filter provided by admin, join User to filter by username.
         if user_filter:
-            # Join with the related User (submitter) and filter by username.
             query = query.join(Asset.submitter).filter(User.username == user_filter)
 
-    # Apply a status filter if given.
     if status_filter:
         query = query.filter_by(status=status_filter)
 
@@ -45,9 +39,7 @@ def new_asset():
     if request.method == "POST":
         name = request.form.get("name")
         category = request.form.get("category")
-        purchase_date = request.form.get("purchase_date")  # Expecting 'YYYY-MM-DD'
-
-        # Only let admins manually set the status; regular users have assets going to pending.
+        purchase_date = request.form.get("purchase_date")
         if current_user.role == "admin":
             status = request.form.get("status", "Active")
         else:
@@ -59,7 +51,6 @@ def new_asset():
             flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
             return redirect(url_for("main.new_asset"))
 
-        # Create the asset and assign the current user's id.
         asset = Asset(
             name=name,
             category=category,
@@ -80,7 +71,6 @@ def new_asset():
 def edit_asset(id):
     asset = Asset.query.get_or_404(id)
 
-    # Optionally, you could also add a check so non-admins can only edit their own assets.
     if current_user.role != "admin" and asset.user_id != current_user.id:
         flash("Access denied.", "danger")
         return redirect(url_for("main.asset_list"))
@@ -95,7 +85,6 @@ def edit_asset(id):
             flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
             return redirect(url_for("main.edit_asset", id=id))
 
-        # Allow admin to update status via form; non-admins might not even have this field in their form.
         asset.status = request.form.get("status")
 
         db.session.commit()
@@ -110,7 +99,6 @@ def edit_asset(id):
 def delete_asset(id):
     asset = Asset.query.get_or_404(id)
 
-    # Optionally, prevent non-admins from deleting assets that aren't theirs.
     if current_user.role != "admin" and asset.user_id != current_user.id:
         flash("Access denied.", "danger")
         return redirect(url_for("main.asset_list"))

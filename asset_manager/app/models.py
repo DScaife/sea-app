@@ -7,7 +7,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(20), nullable=False, default='user')
-    # Relationship to access a user’s assets
     assets = db.relationship('Asset', backref='submitter', lazy=True)
 
     def __repr__(self):

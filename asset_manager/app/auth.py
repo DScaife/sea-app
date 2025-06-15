@@ -30,8 +30,6 @@ def register():
     
     if request.method == 'POST':
         username = request.form.get('username')
-        # Remove email extraction as it's no longer needed:
-        # email = request.form.get('email')
         password = request.form.get('password')
         confirm_password = request.form.get('confirm_password')
         
