@@ -2,26 +2,27 @@
 {% block content %}
   <h2>Edit Asset</h2>
   <form method="POST">
+    {{ form.hidden_tag() }}
     <div class="mb-3">
-      <label for="name" class="form-label">Asset Name</label>
-      <input type="text" id="name" name="name" class="form-control" value="{{ asset.name }}" required>
+      {{ form.name.label(class="form-label") }}
+      {{ form.name(class="form-control") }}
     </div>
     <div class="mb-3">
-      <label for="category" class="form-label">Category</label>
-      <input type="text" id="category" name="category" class="form-control" value="{{ asset.category }}" required>
+      {{ form.category.label(class="form-label") }}
+      {{ form.category(class="form-control") }}
     </div>
     <div class="mb-3">
-      <label for="purchase_date" class="form-label">Purchase Date</label>
-      <input type="date" id="purchase_date" name="purchase_date" class="form-control" value="{{ asset.purchase_date.strftime('%Y-%m-%d') }}" required>
+      {{ form.purchase_date.label(class="form-label") }}
+      {{ form.purchase_date(class="form-control") }}
     </div>
+
+    {% if current_user.role == 'admin' %}
     <div class="mb-3">
-      <label for="status" class="form-label">Status</label>
-      <select id="status" name="status" class="form-select">
-        <option value="Active" {% if asset.status == 'Active' %}selected{% endif %}>Active</option>
-        <option value="Pending" {% if asset.status == 'Pending' %}selected{% endif %}>Pending Approval</option>
-        <option value="Inactive" {% if asset.status == 'Inactive' %}selected{% endif %}>Inactive</option>
-      </select>
+      {{ form.status.label(class="form-label") }}
+      {{ form.status(class="form-select") }}
     </div>
+    {% endif %}
+
     <button type="submit" class="btn btn-success">Update Asset</button>
   </form>
 {% endblock %}

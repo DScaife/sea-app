@@ -18,6 +18,15 @@ def app():
         "WTF_CSRF_ENABLED": False,
     }
     app = create_app(test_config)
+    with app.app_context():
+        if not User.query.filter_by(username="admin").first():
+            admin_user = User(
+                username="admin",
+                password=generate_password_hash("Admin#12345", method="pbkdf2:sha256"),
+                role="admin",
+            )
+            db.session.add(admin_user)
+            db.session.commit()
     yield app
     with app.app_context():
         db.session.remove()

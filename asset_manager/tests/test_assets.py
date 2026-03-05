@@ -14,7 +14,7 @@ def login(client, username, password):
 
 def logout(client):
     """Helper function to log out a user."""
-    return client.get("/logout", follow_redirects=True)
+    return client.post("/logout", follow_redirects=True)
 
 
 def test_new_asset_regular_user(client, app):
@@ -22,12 +22,12 @@ def test_new_asset_regular_user(client, app):
         "/register",
         data={
             "username": "regularuser",
-            "password": "testpass",
-            "confirm_password": "testpass",
+            "password": "Regular#12345",
+            "confirm_password": "Regular#12345",
         },
         follow_redirects=True,
     )
-    login(client, "regularuser", "testpass")
+    login(client, "regularuser", "Regular#12345")
 
     response = client.post(
         "/asset/new",
@@ -47,12 +47,12 @@ def test_edit_asset(client, app):
         "/register",
         data={
             "username": "edituser",
-            "password": "editpass",
-            "confirm_password": "editpass",
+            "password": "Edituser#123",
+            "confirm_password": "Edituser#123",
         },
         follow_redirects=True,
     )
-    login(client, "edituser", "editpass")
+    login(client, "edituser", "Edituser#123")
 
     client.post(
         "/asset/new",
@@ -83,7 +83,7 @@ def test_edit_asset(client, app):
 
 
 def test_asset_approval(client, app):
-    login(client, "admin1234", "1234")
+    login(client, "admin", "Admin#12345")
 
     asset = Asset(
         name="Test Device",
@@ -103,7 +103,7 @@ def test_asset_approval(client, app):
 
 
 def test_asset_rejection(client, app):
-    login(client, "admin1234", "1234")
+    login(client, "admin", "Admin#12345")
 
     asset = Asset(
         name="Faulty Device",
@@ -120,3 +120,35 @@ def test_asset_rejection(client, app):
     response = client.post(f"/asset/reject/{asset_id}", follow_redirects=True)
     assert b"Rejected" in response.data
     assert b"Faulty Device" in response.data
+
+
+def test_regular_user_cannot_approve_asset(client, app):
+    client.post(
+        "/register",
+        data={
+            "username": "normaluser",
+            "password": "Normaluser#123",
+            "confirm_password": "Normaluser#123",
+        },
+        follow_redirects=True,
+    )
+    login(client, "normaluser", "Normaluser#123")
+
+    with app.app_context():
+        pending_asset = Asset(
+            name="Approval Attempt",
+            category="Device",
+            purchase_date=datetime.strptime("2025-06-13", "%Y-%m-%d").date(),
+            status="Pending Approval",
+            user_id=1,
+        )
+        db.session.add(pending_asset)
+        db.session.commit()
+        asset_id = pending_asset.id
+
+    response = client.post(f"/asset/approve/{asset_id}", follow_redirects=True)
+    assert b"Access denied." in response.data
+
+    with app.app_context():
+        asset = db.session.get(Asset, asset_id)
+        assert asset.status == "Pending Approval"

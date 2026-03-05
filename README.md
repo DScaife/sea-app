@@ -39,18 +39,49 @@ Asset Manager is a simple web-based asset management system built with Flask.
 
    pip install -r requirements.txt
 
+4. Configure Environment Variables:
+
+   Copy the example file and set values:
+
+   copy .env.example .env
+
+   Required keys include:
+   - SECRET_KEY
+   - DATABASE_URL
+   - BOOTSTRAP_ADMIN_USERNAME
+   - BOOTSTRAP_ADMIN_PASSWORD
+
 ## Running the Application
 
-1. Configure the App:
-   The default configuration uses a local SQLite database (assets.db).
-   Adjust settings in your configuration file or in app/__init__.py if needed.
+1. Start the Application:
 
-2. Start the Application:
+   python run.py
 
-   flask run
+2. Login with bootstrap admin credentials from your `.env`:
+
+   - Username: value of `BOOTSTRAP_ADMIN_USERNAME`
+   - Password: value of `BOOTSTRAP_ADMIN_PASSWORD`
 
 3. Access the Application:
+
    Open your browser and navigate to http://127.0.0.1:5000
+
+## Security Controls (OWASP-aligned)
+
+The application includes protections aligned to OWASP Top 10 areas:
+
+- **A01: Broken Access Control**
+  - Role checks restrict approve/reject operations to admins only.
+  - Regular users cannot manage other users’ assets.
+
+- **A07: Identification and Authentication Failures**
+  - Passwords are hashed with Werkzeug PBKDF2.
+  - Registration enforces password strength rules.
+  - Login lockout is applied after repeated failed attempts.
+
+- **A03: Injection**
+  - SQLAlchemy ORM is used for parameterized query handling.
+  - Tests include SQL injection-like payload login attempts.
 
 ## Running the Tests
 
@@ -61,6 +92,52 @@ Asset Manager is a simple web-based asset management system built with Flask.
    pytest
 
    This will execute all the tests in the tests/ folder.
+
+## DevOps Pipeline Artefacts (Task 3)
+
+This repository includes a minimal CI pipeline and container artefacts suitable for assessment evidence.
+
+- **SCM:** GitHub repository with commits/branches/PRs
+- **CI Workflow:** `.github/workflows/ci.yml`
+  - Installs dependencies
+  - Runs `pytest`
+  - Runs `ruff` lint checks
+  - Runs `bandit` static security scan
+  - Runs `pip-audit` dependency vulnerability scan
+- **Containerisation:** `asset_manager/Dockerfile` and `asset_manager/.dockerignore`
+
+### Local DevOps Tooling
+
+Install development tools:
+
+```
+pip install -r requirements-dev.txt
+```
+
+Run checks locally:
+
+```
+pytest tests -q
+ruff check app tests --select E9,F63,F7,F82
+bandit -r app -q
+pip-audit -r requirements.txt
+```
+
+### Docker Build/Run
+
+From inside `asset_manager/`:
+
+```
+docker build -t asset-manager .
+docker run --env-file .env -p 5000:5000 asset-manager
+```
+
+### Suggested Evidence Screenshots
+
+- GitHub Actions workflow run (tests/lint/security all green)
+- Bandit output in CI logs
+- Ruff output in CI logs
+- Docker build and running container output
 
 ## Usage
 

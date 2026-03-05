@@ -56,14 +56,17 @@
         <td>
           <a href="{{ url_for('main.edit_asset', id=asset.id) }}" class="btn btn-sm btn-warning">Edit</a>
           <form action="{{ url_for('main.delete_asset', id=asset.id) }}" method="post" style="display:inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Sure to delete?');">Delete</button>
           </form>
           
           {% if current_user.role == 'admin' and asset.status == 'Pending Approval' %}
             <form action="{{ url_for('main.approve_asset', id=asset.id) }}" method="post" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-success">Approve</button>
             </form>
             <form action="{{ url_for('main.reject_asset', id=asset.id) }}" method="post" style="display:inline;">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button type="submit" class="btn btn-sm btn-danger">Reject</button>
             </form>
           {% endif %}

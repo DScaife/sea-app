@@ -1,0 +1,4 @@
+venv/
+.pytest_cache/
+asset_manager/venv/
+asset_manager/.env
