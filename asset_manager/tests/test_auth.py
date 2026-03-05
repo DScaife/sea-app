@@ -1,6 +1,8 @@
+import pytest
 from app.models import User
 
 
+@pytest.mark.integration
 def test_register_and_login(client, app):
     response = client.post(
         "/register",
@@ -21,6 +23,7 @@ def test_register_and_login(client, app):
     assert b"Assets List" in response.data
 
 
+@pytest.mark.integration
 def test_invalid_login(client):
     response = client.post(
         "/login",
@@ -30,11 +33,13 @@ def test_invalid_login(client):
     assert b"Invalid credentials" in response.data
 
 
+@pytest.mark.integration
 def test_access_protected_route_without_login(client):
     response = client.get("/assets", follow_redirects=True)
     assert b"Login" in response.data
 
 
+@pytest.mark.security
 def test_weak_password_rejected(client):
     response = client.post(
         "/register",
@@ -48,6 +53,7 @@ def test_weak_password_rejected(client):
     assert b"Password must be at least 10 characters long." in response.data
 
 
+@pytest.mark.security
 def test_login_lockout_after_failed_attempts(client, app):
     for _ in range(5):
         client.post(
@@ -69,6 +75,7 @@ def test_login_lockout_after_failed_attempts(client, app):
         assert admin.locked_until is not None
 
 
+@pytest.mark.security
 def test_login_sql_injection_payload_rejected(client):
     response = client.post(
         "/login",

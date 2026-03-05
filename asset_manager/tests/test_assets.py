@@ -1,3 +1,4 @@
+import pytest
 from app.models import Asset
 from app import db
 from datetime import datetime
@@ -17,6 +18,7 @@ def logout(client):
     return client.post("/logout", follow_redirects=True)
 
 
+@pytest.mark.integration
 def test_new_asset_regular_user(client, app):
     client.post(
         "/register",
@@ -42,6 +44,7 @@ def test_new_asset_regular_user(client, app):
     assert b"Laptop" in response.data
 
 
+@pytest.mark.integration
 def test_edit_asset(client, app):
     client.post(
         "/register",
@@ -82,6 +85,7 @@ def test_edit_asset(client, app):
     assert b"Updated Laptop" in response.data
 
 
+@pytest.mark.integration
 def test_asset_approval(client, app):
     login(client, "admin", "Admin#12345")
 
@@ -102,6 +106,7 @@ def test_asset_approval(client, app):
     assert b"Test Device" in response.data
 
 
+@pytest.mark.integration
 def test_asset_rejection(client, app):
     login(client, "admin", "Admin#12345")
 
@@ -122,6 +127,7 @@ def test_asset_rejection(client, app):
     assert b"Faulty Device" in response.data
 
 
+@pytest.mark.security
 def test_regular_user_cannot_approve_asset(client, app):
     client.post(
         "/register",
