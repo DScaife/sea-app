@@ -39,18 +39,49 @@ Asset Manager is a simple web-based asset management system built with Flask.
 
    pip install -r requirements.txt
 
+4. Configure Environment Variables:
+
+   Copy the example file and set values:
+
+   copy .env.example .env
+
+   Required keys include:
+   - SECRET_KEY
+   - DATABASE_URL
+   - BOOTSTRAP_ADMIN_USERNAME
+   - BOOTSTRAP_ADMIN_PASSWORD
+
 ## Running the Application
 
-1. Configure the App:
-   The default configuration uses a local SQLite database (assets.db).
-   Adjust settings in your configuration file or in app/__init__.py if needed.
+1. Start the Application:
 
-2. Start the Application:
+   python run.py
 
-   flask run
+2. Login with bootstrap admin credentials from your `.env`:
+
+   - Username: value of `BOOTSTRAP_ADMIN_USERNAME`
+   - Password: value of `BOOTSTRAP_ADMIN_PASSWORD`
 
 3. Access the Application:
+
    Open your browser and navigate to http://127.0.0.1:5000
+
+## Security Controls (OWASP-aligned)
+
+The application includes protections aligned to OWASP Top 10 areas:
+
+- **A01: Broken Access Control**
+  - Role checks restrict approve/reject operations to admins only.
+  - Regular users cannot manage other users’ assets.
+
+- **A07: Identification and Authentication Failures**
+  - Passwords are hashed with Werkzeug PBKDF2.
+  - Registration enforces password strength rules.
+  - Login lockout is applied after repeated failed attempts.
+
+- **A03: Injection**
+  - SQLAlchemy ORM is used for parameterized query handling.
+  - Tests include SQL injection-like payload login attempts.
 
 ## Running the Tests
 

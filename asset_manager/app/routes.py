@@ -71,7 +71,7 @@ def new_asset():
 @main.route("/asset/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit_asset(id):
-    asset = Asset.query.get_or_404(id)
+    asset = db.get_or_404(Asset, id)
 
     if current_user.role != "admin" and asset.user_id != current_user.id:
         flash("Access denied.", "danger")
@@ -110,7 +110,7 @@ def edit_asset(id):
 @main.route("/asset/delete/<int:id>", methods=["POST"])
 @login_required
 def delete_asset(id):
-    asset = Asset.query.get_or_404(id)
+    asset = db.get_or_404(Asset, id)
 
     if current_user.role != "admin" and asset.user_id != current_user.id:
         flash("Access denied.", "danger")
@@ -129,7 +129,7 @@ def approve_asset(id):
         flash("Access denied.", "danger")
         return redirect(url_for("main.asset_list"))
 
-    asset = Asset.query.get_or_404(id)
+    asset = db.get_or_404(Asset, id)
     asset.status = "Active"
     db.session.commit()
     flash("Asset approved!", "success")
@@ -143,7 +143,7 @@ def reject_asset(id):
         flash("Access denied.", "danger")
         return redirect(url_for("main.asset_list"))
 
-    asset = Asset.query.get_or_404(id)
+    asset = db.get_or_404(Asset, id)
     asset.status = "Rejected"
     db.session.commit()
     flash("Asset rejected!", "warning")
