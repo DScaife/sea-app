@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from . import db
 from .models import Asset, User
-from datetime import datetime
+from .forms import AssetForm, ALLOWED_ASSET_STATUSES
 from flask_login import login_required, current_user
 
 main = Blueprint("main", __name__)
@@ -36,25 +36,22 @@ def asset_list():
 @main.route("/asset/new", methods=["GET", "POST"])
 @login_required
 def new_asset():
-    if request.method == "POST":
-        name = request.form.get("name")
-        category = request.form.get("category")
-        purchase_date = request.form.get("purchase_date")
-        if current_user.role == "admin":
-            status = request.form.get("status", "Active")
-        else:
-            status = "Pending Approval"
+    form = AssetForm()
 
-        try:
-            purchase_date_obj = datetime.strptime(purchase_date, "%Y-%m-%d")
-        except ValueError:
-            flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
-            return redirect(url_for("main.new_asset"))
+    if current_user.role == "admin":
+        form.status.choices = [(status, status) for status in ALLOWED_ASSET_STATUSES]
+        if request.method == "GET":
+            form.status.data = "Active"
+    else:
+        form.status.choices = [("Pending Approval", "Pending Approval")]
+        form.status.data = "Pending Approval"
 
+    if form.validate_on_submit():
+        status = form.status.data if current_user.role == "admin" else "Pending Approval"
         asset = Asset(
-            name=name,
-            category=category,
-            purchase_date=purchase_date_obj,
+            name=form.name.data.strip(),
+            category=form.category.data.strip(),
+            purchase_date=form.purchase_date.data,
             status=status,
             user_id=current_user.id,
         )
@@ -63,7 +60,12 @@ def new_asset():
         flash("Asset created successfully!", "success")
         return redirect(url_for("main.asset_list"))
 
-    return render_template("new_asset.html")
+    elif form.is_submitted():
+        for errors in form.errors.values():
+            for error in errors:
+                flash(error, "danger")
+
+    return render_template("new_asset.html", form=form)
 
 
 @main.route("/asset/edit/<int:id>", methods=["GET", "POST"])
@@ -75,26 +77,34 @@ def edit_asset(id):
         flash("Access denied.", "danger")
         return redirect(url_for("main.asset_list"))
 
-    if request.method == "POST":
-        asset.name = request.form.get("name")
-        asset.category = request.form.get("category")
-        purchase_date = request.form.get("purchase_date")
-        try:
-            asset.purchase_date = datetime.strptime(purchase_date, "%Y-%m-%d")
-        except ValueError:
-            flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
-            return redirect(url_for("main.edit_asset", id=id))
+    form = AssetForm(obj=asset)
+    if current_user.role == "admin":
+        form.status.choices = [(status, status) for status in ALLOWED_ASSET_STATUSES]
+    else:
+        form.status.choices = [("Pending Approval", "Pending Approval")]
+        if request.method == "GET":
+            form.status.data = "Pending Approval"
 
+    if form.validate_on_submit():
+        asset.name = form.name.data.strip()
+        asset.category = form.category.data.strip()
+        asset.purchase_date = form.purchase_date.data
         if current_user.role == "admin":
-            asset.status = request.form.get("status", asset.status)
-        elif asset.status != "Pending Approval":
+            if form.status.data in ALLOWED_ASSET_STATUSES:
+                asset.status = form.status.data
+        else:
             asset.status = "Pending Approval"
 
         db.session.commit()
         flash("Asset updated successfully!", "success")
         return redirect(url_for("main.asset_list"))
 
-    return render_template("edit_asset.html", asset=asset)
+    elif form.is_submitted():
+        for errors in form.errors.values():
+            for error in errors:
+                flash(error, "danger")
+
+    return render_template("edit_asset.html", asset=asset, form=form)
 
 
 @main.route("/asset/delete/<int:id>", methods=["POST"])

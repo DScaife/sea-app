@@ -2,18 +2,27 @@
 {% block content %}
   <h2>Add New Asset</h2>
   <form method="POST">
+    {{ form.hidden_tag() }}
     <div class="mb-3">
-      <label for="name" class="form-label">Asset Name</label>
-      <input type="text" id="name" name="name" class="form-control" required>
+      {{ form.name.label(class="form-label") }}
+      {{ form.name(class="form-control") }}
     </div>
     <div class="mb-3">
-      <label for="category" class="form-label">Category</label>
-      <input type="text" id="category" name="category" class="form-control" required>
+      {{ form.category.label(class="form-label") }}
+      {{ form.category(class="form-control") }}
     </div>
     <div class="mb-3">
-      <label for="purchase_date" class="form-label">Purchase Date</label>
-      <input type="date" id="purchase_date" name="purchase_date" class="form-control" required>
+      {{ form.purchase_date.label(class="form-label") }}
+      {{ form.purchase_date(class="form-control") }}
     </div>
+
+    {% if current_user.role == 'admin' %}
+    <div class="mb-3">
+      {{ form.status.label(class="form-label") }}
+      {{ form.status(class="form-select") }}
+    </div>
+    {% endif %}
+
     <button type="submit" class="btn btn-success">Create Asset</button>
   </form>
 {% endblock %}

@@ -3,6 +3,7 @@ import secrets
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_wtf import CSRFProtect
 from werkzeug.security import generate_password_hash
 from sqlalchemy import inspect, text
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 db = SQLAlchemy()
+csrf = CSRFProtect()
 
 
 def _migrate_user_table_if_needed():
@@ -53,6 +55,7 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     db.init_app(app)
+    csrf.init_app(app)
 
     login_manager = LoginManager()
     login_manager.login_view = "auth.login"
