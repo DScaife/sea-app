@@ -93,6 +93,50 @@ The application includes protections aligned to OWASP Top 10 areas:
 
    This will execute all the tests in the tests/ folder.
 
+## DevOps Pipeline Artefacts (Task 3)
+
+This repository includes a minimal CI pipeline and container artefacts suitable for assessment evidence.
+
+- **SCM:** GitHub repository with commits/branches/PRs
+- **CI Workflow:** `.github/workflows/ci.yml`
+  - Installs dependencies
+  - Runs `pytest`
+  - Runs `ruff` lint checks
+  - Runs `bandit` static security scan
+- **Containerisation:** `asset_manager/Dockerfile` and `asset_manager/.dockerignore`
+
+### Local DevOps Tooling
+
+Install development tools:
+
+```
+pip install -r requirements-dev.txt
+```
+
+Run checks locally:
+
+```
+pytest tests -q
+ruff check app tests --select E9,F63,F7,F82
+bandit -r app -q
+```
+
+### Docker Build/Run
+
+From inside `asset_manager/`:
+
+```
+docker build -t asset-manager .
+docker run --env-file .env -p 5000:5000 asset-manager
+```
+
+### Suggested Evidence Screenshots
+
+- GitHub Actions workflow run (tests/lint/security all green)
+- Bandit output in CI logs
+- Ruff output in CI logs
+- Docker build and running container output
+
 ## Usage
 
 - User Registration:
