@@ -32,3 +32,6 @@ jobs:
 
       - name: Run static security scan (Bandit)
         run: bandit -r asset_manager/app -q
+
+      - name: Run dependency vulnerability scan (pip-audit)
+        run: pip-audit -r asset_manager/requirements.txt

@@ -103,6 +103,7 @@ This repository includes a minimal CI pipeline and container artefacts suitable 
   - Runs `pytest`
   - Runs `ruff` lint checks
   - Runs `bandit` static security scan
+  - Runs `pip-audit` dependency vulnerability scan
 - **Containerisation:** `asset_manager/Dockerfile` and `asset_manager/.dockerignore`
 
 ### Local DevOps Tooling
@@ -119,6 +120,7 @@ Run checks locally:
 pytest tests -q
 ruff check app tests --select E9,F63,F7,F82
 bandit -r app -q
+pip-audit -r requirements.txt
 ```
 
 ### Docker Build/Run

@@ -4,12 +4,17 @@ from .models import User
 from .forms import LoginForm, RegisterForm
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 auth = Blueprint('auth', __name__)
 
 MAX_FAILED_LOGIN_ATTEMPTS = 5
 LOCKOUT_MINUTES = 15
+
+
+def current_utc_naive():
+    """UTC timestamp without tzinfo for compatibility with current DB column type."""
+    return datetime.now(UTC).replace(tzinfo=None)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -23,7 +28,7 @@ def login():
         password = form.password.data
         user = User.query.filter_by(username=username).first()
 
-        if user and user.locked_until and user.locked_until > datetime.utcnow():
+        if user and user.locked_until and user.locked_until > current_utc_naive():
             flash('Account temporarily locked. Please try again later.', 'danger')
             return render_template('login.html', form=form)
 
@@ -38,7 +43,7 @@ def login():
             if user:
                 user.failed_login_attempts += 1
                 if user.failed_login_attempts >= MAX_FAILED_LOGIN_ATTEMPTS:
-                    user.locked_until = datetime.utcnow() + timedelta(minutes=LOCKOUT_MINUTES)
+                    user.locked_until = current_utc_naive() + timedelta(minutes=LOCKOUT_MINUTES)
                     user.failed_login_attempts = 0
                 db.session.commit()
             flash('Invalid credentials. Please try again.', 'danger')
@@ -81,7 +86,7 @@ def register():
 
     return render_template('register.html', form=form)
 
-@auth.route('/logout')
+@auth.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()

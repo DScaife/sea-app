@@ -14,7 +14,7 @@ def login(client, username, password):
 
 def logout(client):
     """Helper function to log out a user."""
-    return client.get("/logout", follow_redirects=True)
+    return client.post("/logout", follow_redirects=True)
 
 
 def test_new_asset_regular_user(client, app):
