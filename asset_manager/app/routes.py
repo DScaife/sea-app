@@ -27,7 +27,7 @@ def asset_list():
             query = query.join(Asset.submitter).filter(User.username == user_filter)
 
     if status_filter:
-        query = query.filter_by(status=status_filter)
+        query = query.filter(Asset.status == status_filter)
 
     assets = query.all()
     return render_template("assets.html", assets=assets)

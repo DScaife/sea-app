@@ -29,3 +29,10 @@ def test_purchase_date_validator_rejects_future_date():
     field = DummyField(future)
     with pytest.raises(ValidationError):
         validate_not_future_date(None, field)
+
+
+@pytest.mark.unit
+def test_purchase_date_validator_allows_today_date():
+    today = date.today()
+    field = DummyField(today)
+    validate_not_future_date(None, field)
