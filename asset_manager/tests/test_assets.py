@@ -22,12 +22,12 @@ def test_new_asset_regular_user(client, app):
         "/register",
         data={
             "username": "regularuser",
-            "password": "testpass",
-            "confirm_password": "testpass",
+            "password": "Regular#12345",
+            "confirm_password": "Regular#12345",
         },
         follow_redirects=True,
     )
-    login(client, "regularuser", "testpass")
+    login(client, "regularuser", "Regular#12345")
 
     response = client.post(
         "/asset/new",
@@ -47,12 +47,12 @@ def test_edit_asset(client, app):
         "/register",
         data={
             "username": "edituser",
-            "password": "editpass",
-            "confirm_password": "editpass",
+            "password": "Edituser#123",
+            "confirm_password": "Edituser#123",
         },
         follow_redirects=True,
     )
-    login(client, "edituser", "editpass")
+    login(client, "edituser", "Edituser#123")
 
     client.post(
         "/asset/new",
@@ -83,7 +83,7 @@ def test_edit_asset(client, app):
 
 
 def test_asset_approval(client, app):
-    login(client, "admin1234", "1234")
+    login(client, "admin", "Admin#12345")
 
     asset = Asset(
         name="Test Device",
@@ -103,7 +103,7 @@ def test_asset_approval(client, app):
 
 
 def test_asset_rejection(client, app):
-    login(client, "admin1234", "1234")
+    login(client, "admin", "Admin#12345")
 
     asset = Asset(
         name="Faulty Device",

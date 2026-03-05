@@ -85,7 +85,10 @@ def edit_asset(id):
             flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
             return redirect(url_for("main.edit_asset", id=id))
 
-        asset.status = request.form.get("status")
+        if current_user.role == "admin":
+            asset.status = request.form.get("status", asset.status)
+        elif asset.status != "Pending Approval":
+            asset.status = "Pending Approval"
 
         db.session.commit()
         flash("Asset updated successfully!", "success")

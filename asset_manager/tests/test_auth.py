@@ -3,8 +3,8 @@ def test_register_and_login(client, app):
         "/register",
         data={
             "username": "testuser",
-            "password": "testpass",
-            "confirm_password": "testpass",
+            "password": "Testpass#123",
+            "confirm_password": "Testpass#123",
         },
         follow_redirects=True,
     )
@@ -12,7 +12,7 @@ def test_register_and_login(client, app):
 
     response = client.post(
         "/login",
-        data={"username": "testuser", "password": "testpass"},
+        data={"username": "testuser", "password": "Testpass#123"},
         follow_redirects=True,
     )
     assert b"Assets List" in response.data
@@ -21,7 +21,7 @@ def test_register_and_login(client, app):
 def test_invalid_login(client):
     response = client.post(
         "/login",
-        data={"username": "admin1234", "password": "wrongpass"},
+        data={"username": "admin", "password": "wrongpass"},
         follow_redirects=True,
     )
     assert b"Invalid credentials" in response.data
