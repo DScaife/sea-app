@@ -25,7 +25,16 @@ jobs:
           pip install -r asset_manager/requirements-dev.txt
 
       - name: Run unit tests
-        run: pytest asset_manager/tests -q
+        run: pytest asset_manager/tests -m unit -v -ra --junitxml=reports/unit-tests.xml
+
+      - name: Run integration tests
+        run: pytest asset_manager/tests -m integration -v -ra --junitxml=reports/integration-tests.xml
+
+      - name: Run security tests
+        run: pytest asset_manager/tests -m security -v -ra --junitxml=reports/security-tests.xml
+
+      - name: Run full suite with coverage report
+        run: pytest asset_manager/tests -v --cov=asset_manager/app --cov-report=term-missing --cov-report=xml:reports/coverage.xml --junitxml=reports/all-tests.xml
 
       - name: Run lint checks (Ruff)
         run: ruff check asset_manager/app asset_manager/tests --select E9,F63,F7,F82
@@ -35,3 +44,10 @@ jobs:
 
       - name: Run dependency vulnerability scan (pip-audit)
         run: pip-audit -r asset_manager/requirements.txt
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-and-coverage-reports
+          path: reports/

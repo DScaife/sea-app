@@ -93,6 +93,33 @@ The application includes protections aligned to OWASP Top 10 areas:
 
    This will execute all the tests in the tests/ folder.
 
+### Test Categories (for assignment evidence)
+
+Tests are grouped by marker so you can report outcomes by type:
+
+- **Unit tests**
+  ```
+  pytest asset_manager/tests -m unit -v -ra
+  ```
+- **Integration tests**
+  ```
+  pytest asset_manager/tests -m integration -v -ra
+  ```
+- **Security tests**
+  ```
+  pytest asset_manager/tests -m security -v -ra
+  ```
+
+### Coverage + JUnit reports
+
+To generate richer artefacts for your report:
+
+```
+pytest asset_manager/tests -v --cov=asset_manager/app --cov-report=term-missing --cov-report=xml:reports/coverage.xml --junitxml=reports/all-tests.xml
+```
+
+This supports evidence such as test counts/status by category and exported XML report files.
+
 ## DevOps Pipeline Artefacts (Task 3)
 
 This repository includes a minimal CI pipeline and container artefacts suitable for assessment evidence.
@@ -118,6 +145,9 @@ Run checks locally:
 
 ```
 pytest tests -q
+pytest tests -m unit -v -ra
+pytest tests -m integration -v -ra
+pytest tests -m security -v -ra
 ruff check app tests --select E9,F63,F7,F82
 bandit -r app -q
 pip-audit -r requirements.txt
